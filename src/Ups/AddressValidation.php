@@ -47,7 +47,7 @@ class AddressValidation extends Ups
     /**
      * Get Address Validation information
      *
-     * @param array $requestOption Optional processing. For Mail Innovations the only valid options are Last Activity and All activity.
+     * @param array $requestOption
      * @return stdClass
      * @throws Exception
      */
@@ -75,6 +75,8 @@ class AddressValidation extends Ups
                 (int)$response->Response->Error->ErrorCode
             );
         } else {
+            // TODO
+            // We don't need to return data regarding the response to the user
             return $this->formatResponse($response);
         }
     }
@@ -87,21 +89,37 @@ class AddressValidation extends Ups
      */
     private function validateRequestKeys($requestOption)
     {
+        $isValid = true;
+        if(array_key_exists('Address', $requestOption)) {
+            $isValid = $this->validateAddress($requestOption['Address']);
+        }
+                
+        return $isValid;
+    }
+    
+    /**
+     * Validate Address Keys
+     *
+     * @param array $addressOptions
+     * @return bool
+     */
+    private function validateAddress($addressOptions)
+    {
         $isValid = false;
-        $keys = array_keys($requestOption);
+        $keys = array_keys($addressOptions);
         $keysLen = count($keys);
         switch ($keysLen) {
             case 1:
                 $isValid = $this->validateForSingleKey($keys[0]);
                 break;
             case 2:
-                $isValid = $this->validateForTwoKeys($requestOption);
+                $isValid = $this->validateForTwoKeys($addressOptions);
                 break;
             case 3:
-                $isValid = $this->validateForThreeKeys($requestOption);
+                $isValid = $this->validateForThreeKeys($addressOptions);
                 break;
             case 4:
-                $isValid = $this->validateForFourKeys($requestOption);
+                $isValid = $this->validateForFourKeys($addressOptions);
                 break;
             default:
                 break;
@@ -211,25 +229,37 @@ class AddressValidation extends Ups
         $node = $xml->importNode($this->createTransactionNode(), true);
         $request->appendChild($node);
 
+        if(array_key_exists('TransactionReference', $this->requestOption)){
+            $transactionReferenceNode = $request->appendChild($xml->createElement("TransactionReference"));
+            $transactionReferenceOptions = $this->requestOption['TransactionReference'];
+            $this->addOptionsToNode($transactionReferenceOptions, $transactionReferenceNode, $xml);
+        }
         $request->appendChild($xml->createElement("RequestAction", "AV"));
-
-        if (null !== $this->requestOption) {
-            $address = $avRequest->appendChild($xml->createElement("Address"));
-            if(array_key_exists('City', $this->requestOption)) {
-                $address->appendChild($xml->createElement("City", $this->requestOption['City']));
-            }
-            if(array_key_exists('StateProvinceCode', $this->requestOption)) {
-                $address->appendChild($xml->createElement("StateProvinceCode", $this->requestOption['StateProvinceCode']));
-            }
-            if(array_key_exists('CountryCode', $this->requestOption)) {
-                $address->appendChild($xml->createElement("CountryCode", $this->requestOption['CountryCode']));
-            }
-            if(array_key_exists('PostalCode', $this->requestOption)) {
-                $address->appendChild($xml->createElement("PostalCode", $this->requestOption['PostalCode']));
-            }
+        if(array_key_exists('RequestOption', $this->requestOption)){
+            $request->appendChild($xml->createElement("RequestOption", $this->requestOption['RequestOption']));
+        }
+        
+        $address = $avRequest->appendChild($xml->createElement("Address"));
+        if(array_key_exists('Address', $this->requestOption)) {
+            $addressOptions = $this->requestOption['Address'];
+            $this->addOptionsToNode($addressOptions, $address, $xml);
         }
 
         return $xml->saveXML();
+    }
+    
+    /**
+     * Add Options To Node
+     *
+     * @param array $options
+     * @param SimpleXMLElement $node
+     * @param DOMDocument $xml
+     */
+    private function addOptionsToNode($options, $node, $xml)
+    {
+        foreach ($options as $key => $value) {
+            $node->appendChild($xml->createElement($key, $value));
+        }
     }
     
     /**
