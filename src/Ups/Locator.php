@@ -74,14 +74,14 @@ class Locator extends Ups {
         $request = $loc_request->appendChild($xml->createElement("Request"));
         $request->appendChild($xml->createElement("RequestAction", "Locator"));
         //createoption
-        if (array_key_exists("Request", $this->requestLocator["Request"])) {
-            if (array_key_exists("RequestOption", $this->requestLocator["Request"]["RequestOption"])) {
-                $request->appendChild($xml->createElement("RequestOption", $this->requestLocator["Request"]['requestOption']));
+        if (array_key_exists("Request", $this->requestLocator)) {
+            if (array_key_exists("RequestOption", $this->requestLocator["Request"])) {
+                $request->appendChild($xml->createElement("RequestOption", $this->requestLocator["Request"]['RequestOption']));
             }
             //TransactionReference
             if (array_key_exists("TransactionReference", $this->requestLocator["Request"])) {
 
-                $request->appendChild($this->addOptionsToNode($this->requestLocator["request"]["TransactionReference"], $xml->createElement("TransactionReference"), $xml));
+                $request->appendChild($this->addOptionsToNode($this->requestLocator["Request"]["TransactionReference"], $xml->createElement("TransactionReference"), $xml));
             }
         }
 
@@ -90,15 +90,15 @@ class Locator extends Ups {
         /**
          * origin address node
          */
-        if (array_key_exists("OriginAddress", $this->requestLocator["OriginAddress"])) {
+        if (array_key_exists("OriginAddress", $this->requestLocator)) {
             $originAddress = $loc_request->appendChild($xml->createElement("OriginAddress"));
             //LandmarkCode
-            if (array_key_exists("OriginAddress", $this->requestLocator["OriginAddress"]["LandmarkCode"])) {
+            if (array_key_exists("LandmarkCode", $this->requestLocator["OriginAddress"])) {
                 $originAddress->appendChild($xml->createElement("LandmarkCode", $this->requestLocator["OriginAddress"]["LandmarkCode"]));
             }
 
             //Geocode
-            if (array_key_exists("OriginAddress", $this->requestLocator["OriginAddress"]["Geocode"])) {
+            if (array_key_exists("Geocode", $this->requestLocator["OriginAddress"])) {
 //         $originAddress->appendChild($xml->createElement("Geocode"));
                 $originAddress->appendChild($this->addOptionsToNode($this->requestLocator["OriginAddress"]["Geocode"], $xml->createElement("Geocode"), $xml));
             }
@@ -113,10 +113,10 @@ class Locator extends Ups {
             $originAddress->appendChild($phonenumber);
             if (array_key_exists("AddressKeyFormat", $this->requestLocator["OriginAddress"])) {
                 $AddressKeyFormat = $xml->createElement("AddressKeyFormat");
-                $originAddress->appendChild($this->addOptionsToNode($this->requestLocator["OriginAddress"]["AddressKeyFormat"], $StructuredPhoneNumber, $xml));
+                $originAddress->appendChild($this->addOptionsToNode($this->requestLocator["OriginAddress"]["AddressKeyFormat"], $AddressKeyFormat, $xml));
             }
 
-            if (array_key_exists("OriginAddress", $this->requestLocator["OriginAddress"]["MaximumListSize"])) {
+            if (array_key_exists("MaximumListSize", $this->requestLocator["OriginAddress"])) {
                 $originAddress->appendChild($xml->createElement("MaximumListSize", $this->requestLocator["OriginAddress"]["MaximumListSize"]));
             }
         }
@@ -147,15 +147,58 @@ class Locator extends Ups {
          */
         if (array_key_exists("LocationSearchCriteria", $this->requestLocator)) {
             $LocationSearchCriteria = $loc_request->appendChild($xml->createElement("LocationSearchCriteria"));
-            //SearchOption
+
+
+//SearchOption
             if (array_key_exists("SearchOption", $this->requestLocator["LocationSearchCriteria"])) {
                 $SearchOption = $LocationSearchCriteria->appendChild($xml->createElement("SearchOption"));
                 //OptionType
                 if (array_key_exists("OptionType", $this->requestLocator["LocationSearchCriteria"]["SearchOption"])) {
-                    //CodeType
 
-                    $SearchOption->appendChild($this->addOptionsToNode($this->requestLocator["LocationSearchCriteria"]["SearchOption"]["OptionType"], $xml->createElement("OptionType"), $xml));
+
+
+                    $optiontype = $SearchOption->appendChild($xml->createElement("OptionType"));
+                    //code
+                    if (array_key_exists("Code", $this->requestLocator["LocationSearchCriteria"]["SearchOption"]["OptionType"])) {
+                        $optiontype->appendChild($xml->createElement("Code", $this->requestLocator["LocationSearchCriteria"]["SearchOption"]["OptionType"]["code"]));
+                    }
                 }
+                //CodeType
+                if (array_key_exists("OptionCode", $this->requestLocator["LocationSearchCriteria"]["SearchOption"])) {
+                    $optiontype->appendChild($this->addOptionsToNode($this->requestLocator["LocationSearchCriteria"]["SearchOption"]["OptionCode"], $xml->createElement("OptionCode"), $xml));
+                }
+
+                //Relation
+                if (array_key_exists("Relation", $this->requestLocator["LocationSearchCriteria"]["SearchOption"])) {
+
+
+
+                    $relation = $SearchOption->appendChild($xml->createElement("Relation"));
+                    //code
+                    if (array_key_exists("Code", $this->requestLocator["LocationSearchCriteria"]["SearchOption"]["Relation"])) {
+                        $relatiom->appendChild($xml->createElement("Code", $this->requestLocator["LocationSearchCriteria"]["SearchOption"]["Relation"]["code"]));
+                    }
+                }
+//                    $SearchOption->appendChild($this->addOptionsToNode($this->requestLocator["LocationSearchCriteria"]["SearchOption"]["OptionType"], $xml->createElement("OptionType"), $xml));
+            }//end of searchoption
+            //MaximumListSize
+            if (array_key_exists("MaximumListSize", $this->requestLocator["LocationSearchCriteria"])) {
+                $LocationSearchCriteria->appendChild($xml->createElement("MaximumListSize"), $this->requestLocator["LocationSearchCriteria"]["MaximumListSize"]);
+            }
+
+            //SearchRadius
+            if (array_key_exists("SearchRadius", $this->requestLocator["LocationSearchCriteria"])) {
+                $LocationSearchCriteria->appendChild($xml->createElement("SearchRadius"), $this->requestLocator["LocationSearchCriteria"]["SearchRadius"]);
+            }
+            //ServiceSearch
+            if (array_key_exists("ServiceSearch", $this->requestLocator["LocationSearchCriteria"])) {
+                $ServiceSearch = $LocationSearchCriteria->appendChild($xml->createElement("ServiceSearch"), $this->requestLocator["LocationSearchCriteria"]["ServiceSearch"]);
+                //Time
+                if (array_key_exists("Time", $this->requestLocator["LocationSearchCriteria"]["ServiceSearch"])) {
+                    $LocationSearchCriteria->appendChild($xml->createElement("Time"), $this->requestLocator["LocationSearchCriteria"]["MaximumListSize"]);
+                }
+                //ServiceCode
+                //ServiceOptionCode
             }
         }
         return $xml->saveXML();
