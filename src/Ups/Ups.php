@@ -5,9 +5,12 @@ use DOMDocument;
 use SimpleXMLElement;
 use Exception;
 use stdClass;
+use SoapClient;
+use SoapHeader;
 
 abstract class Ups
 {
+    const WSDL_DIRECTORY = '\wsdl';
     const PRODUCTION_BASE_URL = 'https://onlinetools.ups.com/ups.app/xml';
     const INTEGRATION_BASE_URL = 'https://wwwcie.ups.com/ups.app/xml';
 
@@ -37,6 +40,26 @@ abstract class Ups
      * @deprecated
      */
     protected $integrationBaseUrl = 'https://wwwcie.ups.com/ups.app/xml';
+    
+    /**
+     * @var string
+     */
+    protected $productionBaseWebUrl = 'https://onlinetools.ups.com/webservices';
+
+    /**
+     * @var string
+     */
+    protected $integrationBaseWebUrl = 'https://wwwcie.ups.com/webservices';
+    
+    /**
+     * @var string
+     */
+    protected $soapNamespace = "http://www.ups.com/XMLSchema/XOLTWS/UPSS/v1.0";
+    
+    /**
+     * @var array
+     */
+    protected $mode;
 
     /**
      * @var bool
@@ -67,6 +90,11 @@ abstract class Ups
         $this->userId = $userId;
         $this->password = $password;
         $this->useIntegration = $useIntegration;
+        
+        $this->mode = array(
+            'soap_version' => 'SOAP_1_1',  // use soap 1.1 client
+            'trace' => 1
+        );
     }
 
     /**
@@ -113,6 +141,38 @@ abstract class Ups
         $accessRequest->appendChild($xml->createElement("Password", $this->password));
 
         return $xml->saveXML();
+    }
+    
+    /**
+     * Create the Soap Client for web services
+     *
+     * @param string $ext
+     * @return SoapClient
+     */
+    protected function getSoapClient($ext)
+    {
+        $client = new SoapClient($this->getWSDLFilePath($ext), $this->mode);
+        
+        return $client;
+    }
+    
+    /**
+     * Create the Header for web services
+     *
+     * @return SoapHeader
+     */
+    protected function createHeader()
+    {
+        $usernameToken['Username'] = $this->userId;
+        $usernameToken['Password'] = $this->password;
+        $serviceAccessLicense['AccessLicenseNumber'] = $this->accessKey;
+        
+        $upss['UsernameToken'] = $usernameToken;
+        $upss['ServiceAccessToken'] = $serviceAccessLicense;
+
+        $header = new SoapHeader($this->soapNamespace, 'UPSSecurity', $upss);
+        
+        return $header;
     }
 
     /**
@@ -171,12 +231,28 @@ abstract class Ups
      * Compiles the final endpoint URL for the request.
      *
      * @param string $segment The URL segment to build in to the endpoint
+     * @param bool $isWebService The URL segment to build in to the endpoint of web service or not
      * @return string
      */
-    protected function compileEndpointUrl($segment)
+    protected function compileEndpointUrl($segment, $isWebService = false)
     {
-        $base = ($this->useIntegration ? $this->integrationBaseUrl : $this->productionBaseUrl);
+        if($isWebService) {
+            $base = ($this->useIntegration ? $this->integrationBaseWebUrl : $this->productionBaseWebUrl);
+        } else {
+            $base = ($this->useIntegration ? $this->integrationBaseUrl : $this->productionBaseUrl);
+        }
 
         return $base . $segment;
+    }
+    
+    /**
+     * Get full Path of .wsdl file
+     *
+     * @param string $ext
+     * @return string
+     */
+    protected function getWSDLFilePath($ext)
+    {
+        return realpath(__DIR__ . self::WSDL_DIRECTORY . $ext);
     }
 }

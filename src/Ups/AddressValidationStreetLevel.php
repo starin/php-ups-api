@@ -29,9 +29,9 @@ class AddressValidationStreetLevel extends Ups
     public $response;
 
     /**
-     * @var string
+     * @var array
      */
-    private $requestOption;
+    private $requestOptions;
     
     /**
      * @param string|null $accessKey UPS License Access Key
@@ -41,7 +41,7 @@ class AddressValidationStreetLevel extends Ups
      */    
     public function __construct($accessKey = null, $userId = null, $password = null, $useIntegration = false)
     {
-        $this->requestOption = array();
+        $this->requestOptions = array();
         parent::__construct($accessKey, $userId, $password, $useIntegration);
     }
     
@@ -52,9 +52,9 @@ class AddressValidationStreetLevel extends Ups
      * @return stdClass
      * @throws Exception
      */
-    public function validate($requestOption)
+    public function validate($requestOptions)
     {
-        $this->requestOption = $requestOption;
+        $this->requestOptions = $requestOptions;
 
         $access = $this->createAccess();
         $request = $this->createRequest();
@@ -96,27 +96,27 @@ class AddressValidationStreetLevel extends Ups
         $node = $xml->importNode($this->createTransactionNode(), true);
         $request->appendChild($node);
 
-        if(array_key_exists('TransactionReference', $this->requestOption)){
+        if(array_key_exists('TransactionReference', $this->requestOptions)){
             $transactionReferenceNode = $request->appendChild($xml->createElement("TransactionReference"));
-            $transactionReferenceOptions = $this->requestOption['TransactionReference'];
+            $transactionReferenceOptions = $this->requestOptions['TransactionReference'];
             $this->addOptionsToNode($transactionReferenceOptions, $transactionReferenceNode, $xml);
         }
         $request->appendChild($xml->createElement("RequestAction", "XAV"));
-        if(array_key_exists('RequestOption', $this->requestOption)){
-            $request->appendChild($xml->createElement("RequestOption", $this->requestOption['RequestOption']));
+        if(array_key_exists('RequestOption', $this->requestOptions)){
+            $request->appendChild($xml->createElement("RequestOption", $this->requestOptions['RequestOption']));
         }
         
-        if(array_key_exists('RegionalRequestIndicator', $this->requestOption)) {
-            $xavRequest->appendChild($xml->createElement("RegionalRequestIndicator", $this->requestOption['RegionalRequestIndicator']));
+        if(array_key_exists('RegionalRequestIndicator', $this->requestOptions)) {
+            $xavRequest->appendChild($xml->createElement("RegionalRequestIndicator", $this->requestOptions['RegionalRequestIndicator']));
         }
         
-        if(array_key_exists('MaximumListSize', $this->requestOption)) {
-            $xavRequest->appendChild($xml->createElement("MaximumListSize", $this->requestOption['MaximumListSize']));
+        if(array_key_exists('MaximumListSize', $this->requestOptions)) {
+            $xavRequest->appendChild($xml->createElement("MaximumListSize", $this->requestOptions['MaximumListSize']));
         }
         
-        if(array_key_exists('AddressKeyFormat', $this->requestOption)) {
+        if(array_key_exists('AddressKeyFormat', $this->requestOptions)) {
             $address = $xavRequest->appendChild($xml->createElement("AddressKeyFormat"));
-            $addressOptions = $this->requestOption['AddressKeyFormat'];
+            $addressOptions = $this->requestOptions['AddressKeyFormat'];
             $this->addOptionsToNode($addressOptions, $address, $xml);
         }        
 

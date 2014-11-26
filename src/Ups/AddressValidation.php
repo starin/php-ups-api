@@ -28,9 +28,9 @@ class AddressValidation extends Ups
     public $response;
 
     /**
-     * @var string
+     * @var array
      */
-    private $requestOption;
+    private $requestOptions;
     
     /**
      * @param string|null $accessKey UPS License Access Key
@@ -40,7 +40,7 @@ class AddressValidation extends Ups
      */    
     public function __construct($accessKey = null, $userId = null, $password = null, $useIntegration = false)
     {
-        $this->requestOption = array();
+        $this->requestOptions = array();
         parent::__construct($accessKey, $userId, $password, $useIntegration);
     }
     
@@ -51,13 +51,13 @@ class AddressValidation extends Ups
      * @return stdClass
      * @throws Exception
      */
-    public function validate($requestOption)
+    public function validate($requestOptions)
     {
-        if(!$this->validateRequestKeys($requestOption)) {
+        if(!$this->validateRequestKeys($requestOptions)) {
             throw new Exception("Invalid Request Options for Address Validation");
         }
         
-        $this->requestOption = $requestOption;
+        $this->requestOptions = $requestOptions;
 
         $access = $this->createAccess();
         $request = $this->createRequest();
@@ -229,19 +229,19 @@ class AddressValidation extends Ups
         $node = $xml->importNode($this->createTransactionNode(), true);
         $request->appendChild($node);
 
-        if(array_key_exists('TransactionReference', $this->requestOption)){
+        if(array_key_exists('TransactionReference', $this->requestOptions)){
             $transactionReferenceNode = $request->appendChild($xml->createElement("TransactionReference"));
-            $transactionReferenceOptions = $this->requestOption['TransactionReference'];
+            $transactionReferenceOptions = $this->requestOptions['TransactionReference'];
             $this->addOptionsToNode($transactionReferenceOptions, $transactionReferenceNode, $xml);
         }
         $request->appendChild($xml->createElement("RequestAction", "AV"));
-        if(array_key_exists('RequestOption', $this->requestOption)){
-            $request->appendChild($xml->createElement("RequestOption", $this->requestOption['RequestOption']));
+        if(array_key_exists('RequestOption', $this->requestOptions)){
+            $request->appendChild($xml->createElement("RequestOption", $this->requestOptions['RequestOption']));
         }
         
         $address = $avRequest->appendChild($xml->createElement("Address"));
-        if(array_key_exists('Address', $this->requestOption)) {
-            $addressOptions = $this->requestOption['Address'];
+        if(array_key_exists('Address', $this->requestOptions)) {
+            $addressOptions = $this->requestOptions['Address'];
             $this->addOptionsToNode($addressOptions, $address, $xml);
         }
 
