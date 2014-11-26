@@ -47,7 +47,6 @@ class Locator extends Ups {
 
         $access = $this->createAccess();
         $request = $this->createRequest();
-
         $this->response = $this->getRequest()->request($access, $request, $this->compileEndpointUrl(self::ENDPOINT));
         $response = $this->response->getResponse();
 
@@ -180,28 +179,254 @@ class Locator extends Ups {
                     }
                 }
 //                    $SearchOption->appendChild($this->addOptionsToNode($this->requestLocator["LocationSearchCriteria"]["SearchOption"]["OptionType"], $xml->createElement("OptionType"), $xml));
-            }//end of searchoption
-            //MaximumListSize
-            if (array_key_exists("MaximumListSize", $this->requestLocator["LocationSearchCriteria"])) {
-                $LocationSearchCriteria->appendChild($xml->createElement("MaximumListSize"), $this->requestLocator["LocationSearchCriteria"]["MaximumListSize"]);
-            }
-
-            //SearchRadius
-            if (array_key_exists("SearchRadius", $this->requestLocator["LocationSearchCriteria"])) {
-                $LocationSearchCriteria->appendChild($xml->createElement("SearchRadius"), $this->requestLocator["LocationSearchCriteria"]["SearchRadius"]);
-            }
-            //ServiceSearch
-            if (array_key_exists("ServiceSearch", $this->requestLocator["LocationSearchCriteria"])) {
-                $ServiceSearch = $LocationSearchCriteria->appendChild($xml->createElement("ServiceSearch"), $this->requestLocator["LocationSearchCriteria"]["ServiceSearch"]);
-                //Time
-                if (array_key_exists("Time", $this->requestLocator["LocationSearchCriteria"]["ServiceSearch"])) {
-                    $LocationSearchCriteria->appendChild($xml->createElement("Time"), $this->requestLocator["LocationSearchCriteria"]["MaximumListSize"]);
+                //MaximumListSize
+                if (array_key_exists("MaximumListSize", $this->requestLocator["LocationSearchCriteria"])) {
+                    $LocationSearchCriteria->appendChild($xml->createElement("MaximumListSize", $this->requestLocator["LocationSearchCriteria"]["MaximumListSize"]));
                 }
-                //ServiceCode
-                //ServiceOptionCode
+
+
+                //SearchRadius
+                if (array_key_exists("SearchRadius", $this->requestLocator["LocationSearchCriteria"])) {
+                    $LocationSearchCriteria->appendChild($xml->createElement("SearchRadius", $this->requestLocator["LocationSearchCriteria"]["SearchRadius"]));
+                }
+
+                //ServiceSearch
+                if (array_key_exists("ServiceSearch", $this->requestLocator["LocationSearchCriteria"])) {
+                    $ServiceSearch = $LocationSearchCriteria->appendChild($xml->createElement("ServiceSearch"));
+                    //Time
+                    if (array_key_exists("Time", $this->requestLocator["LocationSearchCriteria"]["ServiceSearch"])) {
+                        $ServiceSearch->appendChildend($xml->createElement("Time"), $this->requestLocator["LocationSearchCriteria"]["ServiceSearch"]["Time"]);
+                    }
+                    //ServiceCode
+                    if (array_key_exists("ServiceCode", $this->requestLocator["LocationSearchCriteria"]["ServiceSearch"])) {
+
+
+                        $ServiceSearch->appendChild($this->addOptionsToNode($this->requestLocator["LocationSearchCriteria"]["ServiceSearch"]["ServiceCode"], $xml->createElement("ServiceCode"), $xml));
+                    }
+                    //ServiceOptionCode
+                    if (array_key_exists("ServiceOptionCode", $this->requestLocator["LocationSearchCriteria"]["ServiceSearch"])) {
+
+
+                        $ServiceSearch->appendChild($this->addOptionsToNode($this->requestLocator["LocationSearchCriteria"]["ServiceSearch"]["ServiceOptionCode"], $xml->createElement("ServiceOptionCode"), $xml));
+                    }
+                }
+
+
+                //WillCallSearch>SLIC PostcodePrimaryLow CountryCode
+
+                if (array_key_exists("WillCallSearch", $this->requestLocator["LocationSearchCriteria"])) {
+
+
+                    $LocationSearchCriteria->appendChild($this->addOptionsToNode($this->requestLocator["LocationSearchCriteria"]["WillCallSearch"], $xml->createElement("WillCallSearch"), $xml));
+                }
+                /*                 * FreightWillCallSearch
+                  |
+                  -------------------------------------------------------------------------------------------------------
+                  |                               |                  |                         |                   |
+                  FreightWillCallRequestType       FacilityAddress    OriginOrDestination    FormatPostalCode    DayOfWeekCode
+                 *                           |
+                 *                       all string    
+                 * 
+                 */
+                if (array_key_exists("FreightWillCallSearch", $this->requestLocator["LocationSearchCriteria"])) {
+                    $FreightWillCallSearch = $LocationSearchCriteria->appendChild($xml->createElement("FreightWillCallSearch"));
+                    $FreightWillCallSearch->appendChild($xml->createElement("FreightWillCallRequestType"));
+                    if (array_key_exists("FacilityAddress", $this->requestLocator["LocationSearchCriteria"]["FreightWillCallSearch"])) {
+                        $FreightWillCallSearch->appendChild($this->addOptionsToNode($this->requestLocator["LocationSearchCriteria"]["WillCallSearch"]["FreightWillCallSearch"], $xml->createElement("FacilityAddress"), $xml));
+                    }
+                    if (array_key_exists("OriginOrDestination", $this->requestLocator["LocationSearchCriteria"]["FreightWillCallSearch"])) {
+                        $FreightWillCallSearch->appendChild($xml->createElement("OriginOrDestination"));
+                    }
+                    if (array_key_exists("FormatPostalCode", $this->requestLocator["LocationSearchCriteria"]["FreightWillCallSearch"])) {
+                        $FreightWillCallSearch->appendChild($xml->createElement("DayOfWeekCode"));
+                    }
+                    if (array_key_exists("DayOfWeekCode", $this->requestLocator["LocationSearchCriteria"]["FreightWillCallSearch"])) {
+                        $FreightWillCallSearch->appendChild($xml->createElement("DayOfWeekCode"));
+                    }
+                }
+                /**                                     AccessPointSearch
+                  |
+                  ---------------------------------------------------------------------------------------------------------------------
+                 *         |                     |                    |              |                                              |
+                 * PublicAccessPointID    AccessPointStatus    AccountNumber   IncludeCriteria                             ExcludeFromResult
+                 *                                                                   |                                             |
+                 *                                                 -----------------------------------                        ---------------------------------------------------------------------------------------
+                 *                                                 |                |                 |                       |                                  |             |                   |                 
+                 *                                                 |                |                 |                     BusinessClassificationCode     BusinessName      Radius     PostalCodeList            
+                 *                                    MerchantAccountNumberList  SearchFilter   ServiceOfferingList                                                                            |
+                 *                                               |                    |                 |                                                                                   PostalCode
+                 *                                       string                      string          ServiceOffering                                                                            |
+                 *                                                                                         |                                                                                string
+                 *                                                                                      string              
+                 *                                                                                       
+                 *                                     
+                 */
+                if (array_key_exists("AccessPointSearch", $this->requestLocator["LocationSearchCriteria"])) {
+                    $AccessPointSearch = $LocationSearchCriteria->appendChild($xml->createElement("AccessPointSearch"));
+                    //PublicAccessPointID
+                    if (array_key_exists("PublicAccessPointID", $this->requestLocator["LocationSearchCriteria"]["AccessPointSearch"])) {
+                        $AccessPointSearch->appendChild($xml->createElement("PublicAccessPointID", $this->requestLocator["LocationSearchCriteria"]["AccessPointSearch"]["PublicAccessPointID"]));
+                    }
+                    //AccessPointStatus
+                    if (array_key_exists("AccessPointStatus", $this->requestLocator["LocationSearchCriteria"]["AccessPointSearch"])) {
+                        $AccessPointSearch->appendChild($xml->createElement("AccessPointStatus", $this->requestLocator["LocationSearchCriteria"]["AccessPointSearch"]["AccessPointStatus"]));
+                    }
+                    //AccountNumber
+                    if (array_key_exists("AccountNumber", $this->requestLocator["LocationSearchCriteria"]["AccessPointSearch"])) {
+                        $AccessPointSearch->appendChild($xml->createElement("AccountNumber", $this->requestLocator["LocationSearchCriteria"]["AccessPointSearch"]["AccountNumber"]));
+                    }
+                    //IncludeCriteria
+                    if (array_key_exists("IncludeCriteria", $this->requestLocator["LocationSearchCriteria"]["AccessPointSearch"])) {
+                        $IncludeCriteria = $AccessPointSearch->appendChild($xml->createElement("IncludeCriteria"));
+                        //MerchantAccountNumberList
+                        if (array_key_exists("MerchantAccountNumberList", $this->requestLocator["LocationSearchCriteria"]["AccessPointSearch"]["IncludeCriteria"])) {
+                            $IncludeCriteria->appendChild($this->addOptionsToNode($this->requestLocator["LocationSearchCriteria"]["AccessPointSearch"]["IncludeCriteria"]["MerchantAccountNumberList"], $xml->createElement("MerchantAccountNumberList"), $xml));
+                        }
+                        //SearchFilter
+                        if (array_key_exists("SearchFilter", $this->requestLocator["LocationSearchCriteria"]["AccessPointSearch"]["IncludeCriteria"])) {
+                            $IncludeCriteria->appendChild($this->addOptionsToNode($this->requestLocator["LocationSearchCriteria"]["AccessPointSearch"]["IncludeCriteria"]["SearchFilter"], $xml->createElement("SearchFilter"), $xml));
+                        }
+                        //ServiceOfferingList
+                        if (array_key_exists("ServiceOfferingList", $this->requestLocator["LocationSearchCriteria"]["AccessPointSearch"]["IncludeCriteria"])) {
+                            $ServiceOfferingList = $IncludeCriteria->appendChild($xml->createElement("ServiceOfferingList"));
+                            //ServiceOffering
+                            if (array_key_exists("ServiceOffering", $$this->requestLocator["LocationSearchCriteria"]["AccessPointSearch"]["IncludeCriteria"]["ServiceOfferingList"])) {
+                                $ServiceOfferingList->appendChild($this->addOptionsToNode($this->requestLocator["LocationSearchCriteria"]["AccessPointSearch"]["IncludeCriteria"]["ServiceOfferingList"]["ServiceOffering"], $xml->createElement("ServiceOffering"), $xml));
+                            }
+                        }
+                    }
+                    //ExcludeFromResult
+                    if (array_key_exists("ExcludeFromResult", $this->requestLocator["LocationSearchCriteria"]["AccessPointSearch"])) {
+                        $ExcludeFromResult = $AccessPointSearch->appendChild($xml->createElement("ExcludeFromResult"));
+                        //BusinessClassificationCode
+                        if (array_key_exists("BusinessClassificationCode", $this->requestLocator["LocationSearchCriteria"]["AccessPointSearch"]["ExcludeFromResult"])) {
+                            $ExcludeFromResult->appendChild($xml->createElement("BusinessClassificationCode", $this->requestLocator["LocationSearchCriteria"]["AccessPointSearch"]["ExcludeFromResult"]["BusinessClassificationCode"]));
+                        }
+                        //BusinessName
+                        if (array_key_exists("BusinessName", $this->requestLocator["LocationSearchCriteria"]["AccessPointSearch"]["ExcludeFromResult"])) {
+                            $ExcludeFromResult->appendChild($xml->createElement("BusinessName", $this->requestLocator["LocationSearchCriteria"]["AccessPointSearch"]["ExcludeFromResult"]["BusinessName"]));
+                        }
+                        //Radius
+                        if (array_key_exists("Radius", $this->requestLocator["LocationSearchCriteria"]["AccessPointSearch"]["ExcludeFromResult"])) {
+                            $ExcludeFromResult->appendChild($xml->createElement("Radius", $this->requestLocator["LocationSearchCriteria"]["AccessPointSearch"]["ExcludeFromResult"]["Radius"]));
+                        }
+                        //PostalCodeList
+                        if (array_key_exists("PostalCodeList", $this->requestLocator["LocationSearchCriteria"]["AccessPointSearch"]["ExcludeFromResult"])) {
+                            $PostalCodeList = $ExcludeFromResult->appendChild($xml->createElement("PostalCodeList"));
+                            //PostalCode
+                            if (array_key_exists("PostalCode", $$this->requestLocator["LocationSearchCriteria"]["AccessPointSearch"]["ExcludeFromResult"]["PostalCodeList"])) {
+                                $PostalCodeList->appendChild($this->addOptionsToNode($this->requestLocator["LocationSearchCriteria"]["AccessPointSearch"]["ExcludeFromResult"]["PostalCodeList"]["PostalCode"], $xml->createElement("PostalCode"), $xml));
+                            }
+                        }
+                    }
+                }
+            }//end of locationsearch criteria
+            /*             * *
+             * 
+             * MapNavigation
+             * **************
+             * @MapDimensions>string
+             * Number
+             * ZoomFactor
+             * PanX
+             * PanY
+             * MapID
+             * MapURL
+             * @ ImageMap@string
+             */
+            if (array_key_exists("MapNavigation", $this->requestLocator)) {
+                $MapNavigation = $loc_request->appendChild($xml->createElement("MapNavigation"));
+                //MapDimensions
+                if (array_key_exists("MapDimensions", $$this->requestLocator["MapNavigation"])) {
+                    $MapNavigation->appendChild($this->addOptionsToNode($this->requestLocator["MapNavigation"]["MapDimensions"], $xml->createElement("MapDimensions"), $xml));
+                }
+                //Number
+                if (array_key_exists("Number", $this->requestLocator["MapNavigation"])) {
+                    $MapNavigation->appendChild($xml->createElement("Number", $this->requestLocator["MapNavigation"]["Number"]));
+                }
+                //ZoomFactor
+                if (array_key_exists("ZoomFactor", $this->requestLocator["MapNavigation"])) {
+                    $MapNavigation->appendChild($xml->createElement("ZoomFactor", $this->requestLocator["MapNavigation"]["ZoomFactor"]));
+                }
+                //PanX
+                if (array_key_exists("PanX", $this->requestLocator["MapNavigation"])) {
+                    $MapNavigation->appendChild($xml->createElement("PanX", $this->requestLocator["MapNavigation"]["PanX"]));
+                }
+                //PanY
+                if (array_key_exists("PanY", $this->requestLocator["MapNavigation"])) {
+                    $MapNavigation->appendChild($xml->createElement("PanY", $this->requestLocator["MapNavigation"]["PanY"]));
+                }
+                //MapID
+                if (array_key_exists("MapID", $this->requestLocator["MapNavigation"])) {
+                    $MapNavigation->appendChild($xml->createElement("MapID", $this->requestLocator["MapNavigation"]["MapID"]));
+                }
+                //MapID
+                if (array_key_exists("MapURL", $this->requestLocator["MapNavigation"])) {
+                    $MapNavigation->appendChild($xml->createElement("MapURL", $this->requestLocator["MapNavigation"]["MapURL"]));
+                }
+                //MapDimensions
+                if (array_key_exists("ImageMap", $$this->requestLocator["MapNavigation"])) {
+                    $MapNavigation->appendChild($this->addOptionsToNode($this->requestLocator["MapNavigation"]["ImageMap"], $xml->createElement("ImageMap"), $xml));
+                }
+            }
+            /*
+             * AllowAllConfidenceLevels
+             * @string
+             */
+            if (array_key_exists("AllowAllConfidenceLevels", $this->requestLocator)) {
+                $loc_request->appendChild($xml->createElement("AllowAllConfidenceLevels"));
+            }
+            /**
+             * AllowAllConfidenceLevels
+             * @string
+             */
+            if (array_key_exists("AllowAllConfidenceLevels", $this->requestLocator)) {
+                $loc_request->appendChild($xml->createElement("AllowAllConfidenceLevels"));
+            }
+            /*             * *
+             * ServiceGeoUnit
+             * @type other
+             */
+            if (array_key_exists("ServiceGeoUnit", $this->requestLocator)) {
+                $loc_request->appendChild($this->addOptionsToNode($this->requestLocator["ServiceGeoUnit"], $xml->createElement("ServiceGeoUnit"), $xml));
+            }
+            /**
+             * FreightIndicator
+             */
+            if (array_key_exists("ServiceGeoUnit", $this->requestLocator)) {
+                $loc_request->appendChild($xml->createElement("ServiceGeoUnit"));
             }
         }
         return $xml->saveXML();
+    }
+
+    public function addElementsTreeNode($xmlArray, $node, $xml) {
+        $rootNode = $node;
+
+        $i = 0;
+        if (is_array($xmlArray)) {
+            foreach ($xmlArray as $key => $sub_array) {
+
+                if (is_array($sub_array)) {
+
+                    $rootNode = $this->createChildNode($rootNode, $xml, $key);
+                } else {
+                    $this->createChildNode($rootNode, $xml, $key, $sub_array);
+                }
+                if (array_key_exists($key, $xmlArray)) {
+                    $rootNode = $node;
+                }
+            }
+        }
+        return $node;
+    }
+
+    private function createChildNode($rootNode, $xml, $key, $value = NULL) {
+        if (empty($value)) {
+            return $rootNode->appendChild($xml->createElement("$key"));
+        } else {
+            $rootNode->appendChild($xml->createElement("$key", "$value"));
+        }
     }
 
     /**
