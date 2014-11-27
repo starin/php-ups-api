@@ -43,10 +43,12 @@ class Locator extends Ups {
 
     public function locate($requestLocate) {
         $this->requestLocator = $requestLocate;
+     
 //        var_dump($this->requestLocator);
 
         $access = $this->createAccess();
         $request = $this->createRequest();
+        return $request;
         $this->response = $this->getRequest()->request($access, $request, $this->compileEndpointUrl(self::ENDPOINT));
         $response = $this->response->getResponse();
 
@@ -147,8 +149,7 @@ class Locator extends Ups {
         if (array_key_exists("LocationSearchCriteria", $this->requestLocator)) {
             $LocationSearchCriteria = $loc_request->appendChild($xml->createElement("LocationSearchCriteria"));
 
-
-//SearchOption
+                //SearchOption
             if (array_key_exists("SearchOption", $this->requestLocator["LocationSearchCriteria"])) {
                 $SearchOption = $LocationSearchCriteria->appendChild($xml->createElement("SearchOption"));
                 //OptionType
@@ -156,15 +157,20 @@ class Locator extends Ups {
 
 
 
-                    $optiontype = $SearchOption->appendChild($xml->createElement("OptionType"));
+//                    $optiontype = $SearchOption->appendChild($xml->createElement("OptionType"));
                     //code
-                    if (array_key_exists("Code", $this->requestLocator["LocationSearchCriteria"]["SearchOption"]["OptionType"])) {
-                        $optiontype->appendChild($xml->createElement("Code", $this->requestLocator["LocationSearchCriteria"]["SearchOption"]["OptionType"]["code"]));
-                    }
+//                    if (array_key_exists("Code", $this->requestLocator["LocationSearchCriteria"]["SearchOption"]["OptionType"])) {
+                    $SearchOption->appendChild($this->addOptionsToNode($this->requestLocator["LocationSearchCriteria"]["SearchOption"]["OptionType"], $xml->createElement("OptionType"), $xml));    
+//                    $SearchOption->appendChild($xml->createElement("OptionType", $this->requestLocator["LocationSearchCriteria"]["SearchOption"]["OptionType"]));
+//                    }
                 }
                 //CodeType
-                if (array_key_exists("OptionCode", $this->requestLocator["LocationSearchCriteria"]["SearchOption"])) {
-                    $optiontype->appendChild($this->addOptionsToNode($this->requestLocator["LocationSearchCriteria"]["SearchOption"]["OptionCode"], $xml->createElement("OptionCode"), $xml));
+                if (array_key_exists("SelectedOptionCode", $this->requestLocator["LocationSearchCriteria"]["SearchOption"])) {
+                    
+                    foreach ($this->requestLocator["LocationSearchCriteria"]["SearchOption"]["SelectedOptionCode"] as $key => $optionCode) {
+                     $SearchOption->appendChild($this->addOptionsToNode("$optionCode", $xml->createElement("$key"), $xml));   
+                    }
+//                    $SearchOption->appendChild($this->addOptionsToNode($this->requestLocator["LocationSearchCriteria"]["SearchOption"]["OptionCode"], $xml->createElement("OptionCode"), $xml));
                 }
 
                 //Relation
@@ -178,6 +184,13 @@ class Locator extends Ups {
                         $relatiom->appendChild($xml->createElement("Code", $this->requestLocator["LocationSearchCriteria"]["SearchOption"]["Relation"]["code"]));
                     }
                 }
+            }
+                
+                
+                
+                
+                
+            
 //                    $SearchOption->appendChild($this->addOptionsToNode($this->requestLocator["LocationSearchCriteria"]["SearchOption"]["OptionType"], $xml->createElement("OptionType"), $xml));
                 //MaximumListSize
                 if (array_key_exists("MaximumListSize", $this->requestLocator["LocationSearchCriteria"])) {
@@ -195,7 +208,7 @@ class Locator extends Ups {
                     $ServiceSearch = $LocationSearchCriteria->appendChild($xml->createElement("ServiceSearch"));
                     //Time
                     if (array_key_exists("Time", $this->requestLocator["LocationSearchCriteria"]["ServiceSearch"])) {
-                        $ServiceSearch->appendChildend($xml->createElement("Time"), $this->requestLocator["LocationSearchCriteria"]["ServiceSearch"]["Time"]);
+                        $ServiceSearch->appendChild($xml->createElement("Time", $this->requestLocator["LocationSearchCriteria"]["ServiceSearch"]["Time"]));
                     }
                     //ServiceCode
                     if (array_key_exists("ServiceCode", $this->requestLocator["LocationSearchCriteria"]["ServiceSearch"])) {
@@ -230,18 +243,18 @@ class Locator extends Ups {
                  */
                 if (array_key_exists("FreightWillCallSearch", $this->requestLocator["LocationSearchCriteria"])) {
                     $FreightWillCallSearch = $LocationSearchCriteria->appendChild($xml->createElement("FreightWillCallSearch"));
-                    $FreightWillCallSearch->appendChild($xml->createElement("FreightWillCallRequestType"));
+                    $FreightWillCallSearch->appendChild($xml->createElement("FreightWillCallRequestType",$this->requestLocator["LocationSearchCriteria"]["FreightWillCallSearch"]["FreightWillCallRequestType"]));
                     if (array_key_exists("FacilityAddress", $this->requestLocator["LocationSearchCriteria"]["FreightWillCallSearch"])) {
-                        $FreightWillCallSearch->appendChild($this->addOptionsToNode($this->requestLocator["LocationSearchCriteria"]["WillCallSearch"]["FreightWillCallSearch"], $xml->createElement("FacilityAddress"), $xml));
+                        $FreightWillCallSearch->appendChild($this->addOptionsToNode($this->requestLocator["LocationSearchCriteria"]["WillCallSearch"]["FacilityAddress"], $xml->createElement("FacilityAddress"), $xml));
                     }
                     if (array_key_exists("OriginOrDestination", $this->requestLocator["LocationSearchCriteria"]["FreightWillCallSearch"])) {
-                        $FreightWillCallSearch->appendChild($xml->createElement("OriginOrDestination"));
+                        $FreightWillCallSearch->appendChild($xml->createElement("OriginOrDestination",$this->requestLocator["LocationSearchCriteria"]["FreightWillCallSearch"]["OriginOrDestination"]));
                     }
                     if (array_key_exists("FormatPostalCode", $this->requestLocator["LocationSearchCriteria"]["FreightWillCallSearch"])) {
-                        $FreightWillCallSearch->appendChild($xml->createElement("DayOfWeekCode"));
+                        $FreightWillCallSearch->appendChild($xml->createElement("DayOfWeekCode",$this->requestLocator["LocationSearchCriteria"]["FreightWillCallSearch"]["DayOfWeekCode"]));
                     }
-                    if (array_key_exists("DayOfWeekCode", $this->requestLocator["LocationSearchCriteria"]["FreightWillCallSearch"])) {
-                        $FreightWillCallSearch->appendChild($xml->createElement("DayOfWeekCode"));
+                    if (array_key_exists("FormatPostalCode", $this->requestLocator["LocationSearchCriteria"]["FreightWillCallSearch"])) {
+                        $FreightWillCallSearch->appendChild($xml->createElement("DayOfWeekCode",$this->requestLocator["LocationSearchCriteria"]["FreightWillCallSearch"]["FormatPostalCode"]));
                     }
                 }
                 /**                                     AccessPointSearch
@@ -396,7 +409,8 @@ class Locator extends Ups {
             if (array_key_exists("ServiceGeoUnit", $this->requestLocator)) {
                 $loc_request->appendChild($xml->createElement("ServiceGeoUnit"));
             }
-        }
+        
+        
         return $xml->saveXML();
     }
 
