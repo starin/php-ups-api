@@ -3,24 +3,16 @@
 namespace Ups;
 
 //use DOMDocument;
-use SimpleXMLElement;
+//use SimpleXMLElement;
 use Exception;
 use stdClass;
 use SoapClient;
-use SoapHeader;
+//use SoapHeader;
 
 class PickupFreight extends Ups
 {
     const ENDPOINT = '/FreightPickup';
     const WSDL_EXT = "\PickupFreight\FreightPickup.wsdl";
-    
-//    private $endpointurl = "https://wwwcie.ups.com/webservices/FreightPickup";
-//    const WSDL_DIRECTORY = '\wsdl';
-    
-//    private $mode = array(
-//        'soap_version' => 'SOAP_1_1',  // use soap 1.1 client
-//        'trace' => 1
-//    );
     
     /**
      * @var string
@@ -33,6 +25,11 @@ class PickupFreight extends Ups
     private $requestOptions;
     
     /**
+     * @var SoapClient
+     */
+    private $soapClient;
+
+    /**
      * @param string|null $accessKey UPS License Access Key
      * @param string|null $userId UPS User ID
      * @param string|null $password UPS User Password
@@ -43,35 +40,91 @@ class PickupFreight extends Ups
         parent::__construct($accessKey, $userId, $password, $useIntegration);
     }
     
+    /**
+     * Pickup Freight Request
+     *
+     * @param string $operation The operation/function name 
+     * @param array $requestOptions
+     * @return stdClass
+     * @throws Exception
+     */
     public function pickupRequest($operation, $requestOptions)
     {
         $this->operation = $operation;
         $this->requestOptions = $requestOptions;
         
-        // initialize soap client
-        $client = $this->getSoapClient(self::WSDL_EXT);
-
+        $this->setSoapClient();
+        $this->setLocation();
+        $this->setSoapHeaders();
+            
+        try
+        {
+            $response = $this->soapCall();
+            
+            if (null === $response) {
+                throw new Exception("Failure (0): Unknown error", 0);
+            }
+            
+            return $response;
+        }
+        catch (Exception $ex)
+        {
+            throw $ex;
+        }
+    }
+    
+    /**
+     * Set Location for Soap Client
+     */
+    private function setLocation()
+    {
         //set endpoint url
-        $client->__setLocation($this->compileEndpointUrl(self::ENDPOINT, true));
-        
-        //create soap header
-        $client->__setSoapHeaders($this->createHeader());
-        
-        $resp = $client->__soapCall($this->operation, array($this->requestOptions));
-        
-//        $response = $client->__getLastResponse();
-        
-        return $this->formatResponse($resp);
+        $this->soapClient->__setLocation($this->compileEndpointUrl(self::ENDPOINT, true));
     }
 
     /**
-     * Format the response
-     *
-     * @param object $response
-     * @return object
+     * Set Soap Client
      */
-    private function formatResponse($response)
+    private function setSoapClient()
     {
-        return json_decode(json_encode($response));
+        // initialize soap client
+        $this->soapClient = $this->getSoapClient(self::WSDL_EXT);
+    }
+    
+    /**
+     * Set Soap Headers for Soap Client
+     */
+    private function setSoapHeaders()
+    {
+        //create soap header
+        $this->soapClient->__setSoapHeaders($this->createHeader());
+    }
+    
+    /**
+     * @return mixed SOAP functions may return one, or multiple values.
+     */
+    private function soapCall()
+    {
+        $response = $this->soapClient->__soapCall($this->operation, array($this->requestOptions));
+        
+        return $response;
+    }
+    
+    /**
+     * Returns last SOAP request
+     * @return string
+     */
+    public function getRequest()
+    {
+        return $this->soapClient->__getLastRequest();
+    }
+
+    /**
+     * Returns last SOAP response
+     * @return string
+     */
+    public function getResponse()
+    {
+        return $this->soapClient->__getLastResponse();
     }
 }

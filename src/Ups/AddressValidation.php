@@ -47,7 +47,7 @@ class AddressValidation extends Ups
     /**
      * Get Address Validation information
      *
-     * @param array $requestOption
+     * @param array $requestOptions
      * @return stdClass
      * @throws Exception
      */
