@@ -22,9 +22,11 @@ class RateRequest
      * @param null|object $attributes
      */
     public function __construct($attributes = null)
-    {
+    {   
+         $this->setPickupType(new PickupType);
+         $this->setCustomerClassification(new CustomerClassification);
         $this->setShipment(new Shipment);
-        $this->setPickupType(new PickupType);
+       
     }
 
     /**
@@ -45,7 +47,21 @@ class RateRequest
         $this->pickupType = $pickupType;
         return $this;
     }
-
+    /**
+     * @return CustomerClassification
+     */
+    public function getCustomerClassification() {
+        return $this->customerClassification;
+    }
+    /**
+     * @param CustomerClassification $customerClassification
+     * @return $this
+     */
+    public function setCustomerClassification(CustomerClassification $customerClassification) {
+        $this->CustomerClassification = $customerClassification;
+        $this->customerClassification = $customerClassification;
+        return $this;
+    }
     /**
      * @return Shipment
      */

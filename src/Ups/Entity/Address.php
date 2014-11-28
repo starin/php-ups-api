@@ -6,7 +6,9 @@ use DOMElement;
 use Ups\NodeInterface;
 
 class Address implements NodeInterface
-{
+{   
+     /** @deprecated */
+    public $AddressLine;
     /** @deprecated */
     public $AddressLine1;
     /** @deprecated */
@@ -55,7 +57,10 @@ class Address implements NodeInterface
     public $AttentionName;
     /** @deprecated */
     public $AddressExtendedInformation = array();
-
+ /**
+     * @var string
+     */
+    private $addressLine;
     /**
      * @var string
      */
@@ -177,6 +182,9 @@ class Address implements NodeInterface
     public function __construct($attributes = null)
     {
         if (null !== $attributes) {
+            if (isset($attributes->AddressLine)) {
+                $this->setAddressLine($attributes->AddressLine);
+            }
             if (isset($attributes->AddressLine1)) {
                 $this->setAddressLine1($attributes->AddressLine1);
             }
@@ -292,7 +300,24 @@ class Address implements NodeInterface
         $this->addressExtendedInformation = $addressExtendedInformation;
         return $this;
     }
+   /**
+     * @return string
+     */
+    public function getAddressLine()
+    {
+        return $this->addressLine;
+    }
 
+    /**
+     * @param string $addressLine
+     * @return $this
+     */
+    public function setAddressLine($addressLine)
+    {
+        $this->AddressLine = $addressLine;
+        $this->addressLine = $addressLine;
+        return $this;
+    }
     /**
      * @return string
      */

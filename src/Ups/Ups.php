@@ -241,7 +241,7 @@ abstract class Ups
         } else {
             $base = ($this->useIntegration ? $this->integrationBaseUrl : $this->productionBaseUrl);
         }
-
+        
         return $base . $segment;
     }
     

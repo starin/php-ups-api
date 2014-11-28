@@ -35,12 +35,22 @@ class Rate extends Ups
      * @var string
      */
     private $requestOption;
-
+    /**
+     * @param string|null $accessKey UPS License Access Key
+     * @param string|null $userId UPS User ID
+     * @param string|null $password UPS User Password
+     * @param bool $useIntegration Determine if we should use production or CIE URLs.
+     */
+    public function __construct($accessKey = null, $userId = null, $password = null, $useIntegration = FALSE) {
+//        $this->requestOption = array();
+        parent::__construct($accessKey, $userId, $password, $useIntegration);
+    }
     /**
      * @param $rateRequest
      * @return RateRequest
      * @throws Exception
      */
+   
     public function shopRates($rateRequest)
     {
         $this->requestOption = "Shop";
@@ -75,13 +85,16 @@ class Rate extends Ups
      * @throws Exception
      */
     private function sendRequest(RateRequest $rateRequest)
+//    public function sendRequest()
     {
         $request = $this->createRequest($rateRequest);
+
+        
         //$response = $this->request($this->createAccess(), $request, $this->compileEndpointUrl(self::ENDPOINT));
 
         $this->response = $this->getRequest()->request($this->createAccess(), $request, $this->compileEndpointUrl(self::ENDPOINT));
         $response = $this->response->getResponse();
-
+       
         if (null === $response) {
             throw new Exception("Failure (0): Unknown error", 0);
         }
@@ -105,7 +118,7 @@ class Rate extends Ups
     private function createRequest(RateRequest $rateRequest)
     {
         $shipment = $rateRequest->getShipment();
-
+        
         $document = $xml = new DOMDocument();
         $xml->formatOutput = true;
 
@@ -122,7 +135,12 @@ class Rate extends Ups
         $request->appendChild($xml->createElement("RequestOption", $this->requestOption));
 
         $trackRequest->appendChild($rateRequest->getPickupType()->toNode($document));
-
+        
+        $customerClassification = $rateRequest->getCustomerClassification();
+        if (isset($customerClassification)) {
+//            $trackRequest->appendChild($customerClassification->toNode($document));
+        }
+        
         $shipmentNode = $trackRequest->appendChild($xml->createElement('Shipment'));
 
         // Support specifying an individual service
