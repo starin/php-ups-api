@@ -9,10 +9,10 @@ use stdClass;
 use SoapClient;
 //use SoapHeader;
 
-class PickupFreight extends Ups
+class PickupPackage extends Ups
 {
-    const ENDPOINT = '/FreightPickup';
-    const WSDL_EXT = "\PickupFreight\FreightPickup.wsdl";
+    const ENDPOINT = '/Pickup';
+    const WSDL_EXT = "\PickupPackage\Pickup.wsdl";
     
     /**
      * @var string
@@ -55,7 +55,6 @@ class PickupFreight extends Ups
         $this->operation = $operation;
         $this->requestOptions = $requestOptions;
         
-//        $this->setSoapClient();
         $this->setLocation();
         $this->setSoapHeaders();
             
@@ -92,7 +91,7 @@ class PickupFreight extends Ups
         //set endpoint url
         $this->soapClient->__setLocation($this->compileEndpointUrl(self::ENDPOINT, true));
     }
-
+    
     /**
      * Set Soap Headers for Soap Client
      */
