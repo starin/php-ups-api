@@ -45,8 +45,11 @@ class PickupFreight extends Ups
     /**
      * Pickup Freight Request
      *
-     * @param string $operation The operation/function name 
-     * @param array $requestOptions
+     * @param string $operation The name of the SOAP function to call.
+     * "ProcessFreightPickup"
+     * "ProcessFreightCancelPickup"
+     * 
+     * @param array|object $requestOptions
      * @return stdClass
      * @throws Exception
      */
@@ -107,7 +110,7 @@ class PickupFreight extends Ups
      */
     private function soapCall()
     {
-        $response = $this->soapClient->__soapCall($this->operation, array($this->requestOptions));
+        $response = $this->soapClient->__soapCall($this->operation, array(json_decode(json_encode($this->requestOptions))));
         
         return $response;
     }
