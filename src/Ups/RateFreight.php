@@ -37,13 +37,15 @@ class RateFreight extends Ups{
     public function __construct($accessKey = null, $userId = null, $password = null, $useIntegration = false)
     {
         parent::__construct($accessKey, $userId, $password, $useIntegration);
+        
+        $this->initSoapClient();
     }
     
     /**
      * Pickup Freight Request
      *
      * @param string $operation The operation/function name 
-     * @param array $requestOptions
+     * @param object $requestOptions
      * @return stdClass
      * @throws Exception
      */
@@ -52,7 +54,6 @@ class RateFreight extends Ups{
         $this->operation = $operation;
         $this->requestOptions = $requestOptions;
         
-        $this->setSoapClient();
         $this->setLocation();
         $this->setSoapHeaders();
             
@@ -73,21 +74,21 @@ class RateFreight extends Ups{
     }
     
     /**
+     * Set Soap Client
+     */
+    private function initSoapClient()
+    {
+        // initialize soap client
+        $this->soapClient = $this->getSoapClient(self::WSDL_EXT);
+    }
+    
+    /**
      * Set Location for Soap Client
      */
     private function setLocation()
     {
         //set endpoint url
         $this->soapClient->__setLocation($this->compileEndpointUrl(self::ENDPOINT, true));
-    }
-
-    /**
-     * Set Soap Client
-     */
-    private function setSoapClient()
-    {
-        // initialize soap client
-        $this->soapClient = $this->getSoapClient(self::WSDL_EXT);
     }
     
     /**
