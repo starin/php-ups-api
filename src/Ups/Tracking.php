@@ -7,8 +7,8 @@ use Exception;
 use stdClass;
 
 /**
- * Tracking API Wrapper
- *
+ * Tracking AND SignatureTrack API Wrapper
+ *SignatureTrack also use Tracking.
  * @package ups
  */
 class Tracking extends Ups
@@ -55,7 +55,8 @@ class Tracking extends Ups
      * Get package tracking information
      *
      * @param string $trackingNumber The package's tracking number.
-     * @param string $requestOption Optional processing. For Mail Innovations the only valid options are Last Activity and All activity.
+     * @param string $requestOption Optional processing. For Mail Innovations the only valid options are Last Activity and All activity. SignatureTrack uses options greater than 6 like (Signature Image,Signature Image)
+     * 
      * @return stdClass
      * @throws Exception
      */

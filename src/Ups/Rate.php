@@ -1,4 +1,5 @@
 <?php
+
 namespace Ups;
 
 use DOMDocument;
@@ -16,8 +17,8 @@ use Ups\Entity\Shipment;
  * @package ups
  * @author Michael Williams <michael.williams@limelyte.com>
  */
-class Rate extends Ups
-{
+class Rate extends Ups {
+
     const ENDPOINT = '/Rate';
 
     /**
@@ -35,6 +36,7 @@ class Rate extends Ups
      * @var string
      */
     private $requestOption;
+
     /**
      * @param string|null $accessKey UPS License Access Key
      * @param string|null $userId UPS User ID
@@ -45,14 +47,13 @@ class Rate extends Ups
 //        $this->requestOption = array();
         parent::__construct($accessKey, $userId, $password, $useIntegration);
     }
+
     /**
      * @param $rateRequest
      * @return RateRequest
      * @throws Exception
      */
-   
-    public function shopRates($rateRequest)
-    {
+    public function shopRates($rateRequest) {
         $this->requestOption = "Shop";
 
         return $this->sendRequest($rateRequest);
@@ -63,8 +64,7 @@ class Rate extends Ups
      * @return RateRequest
      * @throws Exception
      */
-    public function getRate($rateRequest)
-    {
+    public function getRate($rateRequest) {
         if ($rateRequest instanceof Shipment) {
             $shipment = $rateRequest;
             $rateRequest = new RateRequest();
@@ -84,25 +84,21 @@ class Rate extends Ups
      * @return RateRequest
      * @throws Exception
      */
-    private function sendRequest(RateRequest $rateRequest)
+    private function sendRequest(RateRequest $rateRequest) {
 //    public function sendRequest()
-    {
         $request = $this->createRequest($rateRequest);
 
-        
-        //$response = $this->request($this->createAccess(), $request, $this->compileEndpointUrl(self::ENDPOINT));
+
 
         $this->response = $this->getRequest()->request($this->createAccess(), $request, $this->compileEndpointUrl(self::ENDPOINT));
         $response = $this->response->getResponse();
-       
         if (null === $response) {
             throw new Exception("Failure (0): Unknown error", 0);
         }
 
         if ($response->Response->ResponseStatusCode == 0) {
             throw new Exception(
-                "Failure ({$response->Response->Error->ErrorSeverity}): {$response->Response->Error->ErrorDescription}",
-                (int)$response->Response->Error->ErrorCode
+            "Failure ({$response->Response->Error->ErrorSeverity}): {$response->Response->Error->ErrorDescription}", (int) $response->Response->Error->ErrorCode
             );
         } else {
             return $this->formatResponse($response);
@@ -115,10 +111,9 @@ class Rate extends Ups
      * @param RateRequest $rateRequest The request details. Refer to the UPS documentation for available structure
      * @return string
      */
-    private function createRequest(RateRequest $rateRequest)
-    {
+    private function createRequest(RateRequest $rateRequest) {
         $shipment = $rateRequest->getShipment();
-        
+
         $document = $xml = new DOMDocument();
         $xml->formatOutput = true;
 
@@ -129,39 +124,41 @@ class Rate extends Ups
         $request = $trackRequest->appendChild($xml->createElement("Request"));
 
         $node = $xml->importNode($this->createTransactionNode(), true);
-        $request->appendChild($node);
+//        var_dump(json_en$node));
+//        $request->appendChild($node);
 
         $request->appendChild($xml->createElement("RequestAction", "Rate"));
         $request->appendChild($xml->createElement("RequestOption", $this->requestOption));
 
         $trackRequest->appendChild($rateRequest->getPickupType()->toNode($document));
-        
+
         $customerClassification = $rateRequest->getCustomerClassification();
         if (isset($customerClassification)) {
 //            $trackRequest->appendChild($customerClassification->toNode($document));
         }
-        
-        $shipmentNode = $trackRequest->appendChild($xml->createElement('Shipment'));
 
-        // Support specifying an individual service
-        $service = $shipment->getService();
-        if (isset($service)) {
-            $shipmentNode->appendChild($service->toNode($document));
-        }
+        $shipmentNode = $trackRequest->appendChild($xml->createElement('Shipment'));
+        $shipmentNode->appendChild($xml->createElement("Description", $shipment->getDescription()));
+
 
         $shipper = $shipment->getShipper();
         if (isset($shipper)) {
             $shipmentNode->appendChild($shipper->toNode($document));
         }
-
+        $shipTo = $shipment->getShipTo();
+        if (isset($shipTo)) {
+            $shipmentNode->appendChild($shipTo->toNode($document));
+        }
         $shipFrom = $shipment->getShipFrom();
         if (isset($shipFrom)) {
             $shipmentNode->appendChild($shipFrom->toNode($document));
         }
 
-        $shipTo = $shipment->getShipTo();
-        if (isset($shipTo)) {
-            $shipmentNode->appendChild($shipTo->toNode($document));
+        // Support specifying an individual service
+        $service = $shipment->getService();
+        if (isset($service)) {
+
+            $shipmentNode->appendChild($service->toNode($document));
         }
 
         foreach ($shipment->getPackages() as $package) {
@@ -177,8 +174,7 @@ class Rate extends Ups
      * @param SimpleXMLElement $response
      * @return stdClass
      */
-    private function formatResponse(SimpleXMLElement $response)
-    {
+    private function formatResponse(SimpleXMLElement $response) {
         // We don't need to return data regarding the response to the user
         unset($response->Response);
 
@@ -187,12 +183,10 @@ class Rate extends Ups
         return new RateResponse($result);
     }
 
-
     /**
      * @return RequestInterface
      */
-    public function getRequest()
-    {
+    public function getRequest() {
         if (null === $this->request) {
             $this->request = new Request;
         }
@@ -203,8 +197,7 @@ class Rate extends Ups
      * @param RequestInterface $request
      * @return $this
      */
-    public function setRequest(RequestInterface $request)
-    {
+    public function setRequest(RequestInterface $request) {
         $this->request = $request;
         return $this;
     }
@@ -212,8 +205,7 @@ class Rate extends Ups
     /**
      * @return ResponseInterface
      */
-    public function getResponse()
-    {
+    public function getResponse() {
         return $this->response;
     }
 
@@ -221,9 +213,9 @@ class Rate extends Ups
      * @param ResponseInterface $response
      * @return $this
      */
-    public function setResponse(ResponseInterface $response)
-    {
+    public function setResponse(ResponseInterface $response) {
         $this->response = $response;
         return $this;
     }
+
 }

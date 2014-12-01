@@ -39,8 +39,9 @@ class PackageWeight implements NodeInterface
         }
 
         $node = $document->createElement('PackageWeight');
-        $node->appendChild($document->createElement('Weight', $this->getWeight()));
+        
         $node->appendChild($this->getUnitOfMeasurement()->toNode($document));
+        $node->appendChild($document->createElement('Weight', $this->getWeight()));
         return $node;
     }
 
