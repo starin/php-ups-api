@@ -8,7 +8,7 @@ namespace Ups;
 use Exception;
 use stdClass;
 use SoapClient;
-class Paperless extends Ups{
+class Paperless extends Ups {
     //put your code here
      const ENDPOINT = '/PaperlessDocumentAPI';
     const WSDL_EXT = "\Paperless\PaperlessDocumentAPI.wsdl";
@@ -94,11 +94,13 @@ private $pRQConfirmationNumber;
      * @return stdClass
      * @throws Exception
      */
-    public function PaperLessRequest($operation, $requestOptionFunc)
+    public function PaperLessRequest($operation)
     {
         $this->operation = $operation;
-        $this->requestOptions = $this->$requestOptionFunc();
-        var_dump($this->requestOptions);
+        
+        $this->requestOptions =$this->$operation();
+       
+
         $this->setLocation();
         $this->setSoapHeaders();
             
