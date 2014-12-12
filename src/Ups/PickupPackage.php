@@ -12,7 +12,7 @@ use SoapClient;
 class PickupPackage extends Ups
 {
     const ENDPOINT = '/Pickup';
-    const WSDL_EXT = "\PickupPackage\Pickup.wsdl";
+    const WSDL_EXT = "/PickupPackage/Pickup.wsdl";
     
     /**
      * @var string

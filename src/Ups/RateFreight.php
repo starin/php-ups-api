@@ -11,7 +11,7 @@ use SoapClient;
 class RateFreight extends Ups{
     //put your code here
      const ENDPOINT = '/FreightRate';
-    const WSDL_EXT = "\RateFreight\FreightRate.wsdl";
+    const WSDL_EXT = "/RateFreight/FreightRate.wsdl";
     
     /**
      * @var string

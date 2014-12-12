@@ -10,7 +10,7 @@ use SoapHeader;
 
 abstract class Ups
 {
-    const WSDL_DIRECTORY = '\wsdl';
+    const WSDL_DIRECTORY = '/wsdl';
     const PRODUCTION_BASE_URL = 'https://onlinetools.ups.com/ups.app/xml';
     const INTEGRATION_BASE_URL = 'https://wwwcie.ups.com/ups.app/xml';
 

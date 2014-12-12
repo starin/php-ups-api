@@ -11,7 +11,7 @@ use SoapClient;
 class Paperless extends Ups {
     //put your code here
      const ENDPOINT = '/PaperlessDocumentAPI';
-    const WSDL_EXT = "\Paperless\PaperlessDocumentAPI.wsdl";
+    const WSDL_EXT = "/Paperless/PaperlessDocumentAPI.wsdl";
     
     public $CustomerContext;
     public $TransactionIdentifier;

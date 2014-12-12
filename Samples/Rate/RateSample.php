@@ -12,35 +12,35 @@ $password="Add Password Here";
     $rate = new Ups\Rate($accessKey, $userId, $password, true);
     try
     {
+                
+        $shipment = new Ups\Entity\Shipment();
 
-        $shipment = new Shipment();
-
-        $shipment->Shipper = new Shipper();
+        $shipment->Shipper = new Ups\Entity\Shipper();
         $shipment->Shipper->Name = 'Test Shipper';
         $shipment->Shipper->ShipperNumber = '12345';
-        $shipment->Shipper->Address = new Address();
+        $shipment->Shipper->Address = new Ups\Entity\Address();
         $shipment->Shipper->Address->AddressLine1 = '123 Some St.';
         $shipment->Shipper->Address->City = 'Test';
         $shipment->Shipper->Address->PostalCode = '12345';
         $shipment->Shipper->Address->StateProvinceCode = 'WA';
-        $shipment->ShipTo = new ShipTo();
+        $shipment->ShipTo = new Ups\Entity\ShipTo();
         $shipment->ShipTo->CompanyName = 'Company Name';
-        $shipment->ShipTo->Address = new Address();
+        $shipment->ShipTo->Address = new Ups\Entity\Address();
         $shipment->ShipTo->Address->AddressLine1 = '1234 Some St.';
         $shipment->ShipTo->Address->City = 'Corado';
         $shipment->ShipTo->Address->PostalCode = '00646';
         $shipment->ShipTo->Address->StateProvinceCode = 'PR';
 
-        $shipment->Service = new Service();
+        $shipment->Service = new Ups\Entity\Service();
         $shipment->Service->Code = '03';
 
 
-        $package = new Package();
+        $package = new Ups\Entity\Package();
 
-        $package->PackagingType = new PackagingType();
+        $package->PackagingType = new Ups\Entity\PackagingType();
         $package->PackagingType->Code = '02';
 
-        $package->PackageWeight = new PackageWeight();
+        $package->PackageWeight = new Ups\Entity\PackageWeight();
         $package->PackageWeight->Weight = '10';
         $shipment->Package = array(
             $package,
