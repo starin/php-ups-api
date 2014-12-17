@@ -32,7 +32,7 @@ function processPickupCreation()
     $request['Request'] = $requestoption;
     $request['RatePickupIndicator'] = 'N';
     
-    $account['AccountNumber']= 'W2864W';
+    $account['AccountNumber']= 'Your Account Number';
     $account['AccountCountryCode'] = 'US';
     $shipper['Account'] = $account;
     $request['Shipper'] = $shipper;
@@ -86,7 +86,7 @@ function processPickupCreation()
     $request['Notification'] = $notification;
 
     echo "Request.......<br/>";
-    var_dump($request);
+    var_dump(json_encode($request));
     echo "<br/><br/>";
 
     return $request;

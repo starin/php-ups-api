@@ -15,10 +15,21 @@ try {
       
 
     foreach($shipment->Package->Activity as $activity) {
-        var_dump($activity);
+        var_dump(json_encode($activity));
     }
+    
+    $val = null;
+    if($shipment->ReferenceNumber && $shipment->ReferenceNumber->Code && $shipment->ReferenceNumber->Code == "57") {
+        $val = "";
+        if($shipment->ReferenceNumber->Value) {
+            $val = $shipment->ReferenceNumber->Value;
+        }
+    }
+    
+    var_dump("Bill of Lading Number: ");
+    var_dump($val);
 } catch (Exception $e) {
-    var_dump($e);
+    var_dump(json_encode($e));
 }
 
 echo "Done";

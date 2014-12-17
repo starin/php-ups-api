@@ -12,17 +12,26 @@ $password="Add Password Here";
 $rate = new Ups\RateFreight( $accessKey,$userId,$password,TRUE);
 try {
  
-$resp = $rate->RateRequest("ProcessFreightRate", processFreightRateindex());
-var_dump($resp);
-
+    $resp = $rate->RateRequest("ProcessFreightRate", processFreightRateindex());
+    echo '---------------------------------$resp----------------------------</br></br>';
+    
+    foreach ($resp->Rate as $rate) {
+        var_dump(json_encode($rate));
+        echo "</br></br>";
+    }
  
 } catch (Exception $e) {
-    var_dump($e);
+    echo '---------------------------------Exception----------------------------</br></br>';
+    var_dump(json_encode($e));
+    echo "</br></br>";
 }
+
 function processFreightRateindex() {
     //create soap request
     
-    $option['RequestOption'] = 'RateChecking Option';
+    //1 = Ground (default)
+    //2 = Air
+    $option['RequestOption'] = '1';
     $request['Request'] = $option;
     $shipfrom['Name'] = 'Good Incorporation';
     $addressFrom['AddressLine'] = '2010 WARSAW ROAD';
@@ -56,7 +65,7 @@ function processFreightRateindex() {
     $request['PaymentInformation'] = $paymentinformation;
     $option['RequestOption'] = 'RateChecking Option';
     $request['Request'] = $option;
-//    return $request;
+
     $service['Code'] = '308';
     $service['Description'] = 'UPS Freight LTL';
     $request['Service'] = $service;
@@ -107,13 +116,12 @@ function processFreightRateindex() {
     $commodity['NMFCCommodityCode'] = '';
     $request['Commodity'] = $commodity;
 
-    $shipmentserviceoptions['PickupOptions'] = array
-        (
-        'HolidayPickupIndicator' => '',
-        'InsidePickupIndicator' => '',
-        'ResidentialPickupIndicator' => '',
-        'WeekendPickupIndicator' => '',
-        'LiftGateRequiredIndicator' => ''
+    $shipmentserviceoptions['PickupOptions'] = array(
+        'HolidayPickupIndicator' => '0', // cannot use HolidayPickupIndicator and WeekendPickupIndicator together
+        'InsidePickupIndicator' => '0',
+        'ResidentialPickupIndicator' => '0',
+//        'WeekendPickupIndicator' => '0', // cannot use HolidayPickupIndicator and WeekendPickupIndicator together
+        'LiftGateRequiredIndicator' => '0'
     );
     $shipmentserviceoptions['OverSeasLeg'] = array
         (
@@ -200,7 +208,8 @@ function processFreightRateindex() {
     $request['ShipmentServiceOptions'] = $shipmentserviceoptions;
 
     echo "Request.......\n";
-
+    echo "</br></br>";
+    var_dump(json_encode($request));
     echo "</br></br></br></br>";
     return $request;
 }

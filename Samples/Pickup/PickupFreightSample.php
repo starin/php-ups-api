@@ -8,10 +8,10 @@ use Ups;
 $accessKey="Add Access Key Here";
 $userId="Add UserName Here";
 $password="Add Password Here";
-$password="Add Password Here";
 
 testFreightPickup($accessKey, $userId, $password);
 //testFreightCancelPickup($accessKey, $userId, $password);
+
 function testFreightPickup($accessKey, $userId, $password)
 {
     echo 'PickupFreight:<br/>';
